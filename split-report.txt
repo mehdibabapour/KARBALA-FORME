@@ -1,0 +1,8 @@
+Split report
+index.html: 100 lines
+style.css: 5 lines
+app.js: 142 lines
+
+Verification: reconstructed original (HTML plus extracted CSS/JS) is byte-for-character identical: True. No HTML, CSS, or JavaScript content was dropped; the embedded style and inline script bodies were extracted unchanged.
+Inline event-handler attributes in HTML: none. (JavaScript event wiring such as form.onsubmit remains unchanged in app.js.)
+External script/style references in HTML: https://cdn.tailwindcss.com (script); https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js (script); https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap (stylesheet). Local stylesheet reference: style.css.

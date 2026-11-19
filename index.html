@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت‌نام و بازیابی رسید قرعه‌کشی سفر کربلا</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-8 px-4">
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading-overlay">
+        <div class="text-white text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white mb-4 mx-auto"></div>
+            <p id="loading-text">در حال پردازش...</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-md w-full bg-yellow-400 rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- Poster Image -->
+        <div class="w-full">
+            <img src="poster.png" alt="Poster" class="w-full h-auto object-cover">
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-center text-red-900 mb-6">ثبت‌نام و بازیابی رسید قرعه‌کشی سفر کربلا</h1>
+
+            <!-- Form -->
+            <form id="lotteryForm" class="space-y-4">
+                <div>
+                    <label class="block text-red-900 font-bold mb-1">نام کامل</label>
+                    <input type="text" id="fullName" required 
+                        class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600 text-left" dir="ltr">
+                </div>
+
+                <div>
+                    <label class="block text-red-900 font-bold mb-1">کد ملی</label>
+                    <input type="text" id="nationalId" required maxlength="10" pattern="\d{10}"
+                        class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600 text-left" dir="ltr">
+                </div>
+
+                <div>
+                    <label class="block text-red-900 font-bold mb-1">شماره موبایل</label>
+                    <input type="tel" id="mobile" required maxlength="11" pattern="09\d{9}"
+                        class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600 text-left" dir="ltr">
+                </div>
+
+                <button type="submit" id="submitBtn"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl text-xl transition duration-300 shadow-lg">
+                    ثبت درخواست
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer Version -->
+    <div class="mt-8 text-gray-500 text-sm">Version 17</div>
+
+    <!-- Hidden Receipt Template for Download -->
+    <div id="receipt-template">
+        <div style="text-align: center; color: #800000; border-bottom: 2px solid #800000; padding-bottom: 10px; margin-bottom: 15px;">
+            <h2 style="font-size: 22px; margin: 0;">رسید قرعه‌کشی سفر کربلا</h2>
+        </div>
+        <div style="font-size: 16px; line-height: 1.8; text-align: right; direction: rtl;">
+            <p><strong>نام:</strong> <span id="rec-name"></span></p>
+            <p><strong>کد ملی:</strong> <span id="rec-nat" style="direction: ltr; display: block; text-align: left;"></span></p>
+            <p><strong>موبایل:</strong> <span id="rec-mob" style="direction: ltr; display: block; text-align: left;"></span></p>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px dashed #800000;">
+            <p style="text-align: center; font-size: 18px;"><strong>کد رهگیری:</strong></p>
+            <p id="rec-code" style="text-align: center; font-size: 24px; color: #800000; margin: 0;"></p>
+        </div>
+        <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+            با آرزوی موفقیت در قرعه‌کشی
+        </div>
+    </div>
+
+    <!-- Custom Popups -->
+    <div id="customPopup" class="fixed inset-0 flex items-center justify-center z-[10000] hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all">
+            <div id="popupContent" class="p-6 text-center"></div>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="audioWelcome" src="welcome.mp3"></audio>
+    <audio id="audioLoading" src="Loading.mp3"></audio>
+    <audio id="audioSuccess" src="success.mp3"></audio>
+    <audio id="audioDuplicate" src="duplicate.mp3"></audio>
+    <audio id="audioDuplicateNational" src="duplicate-national.mp3"></audio>
+    <audio id="audioDuplicateMobile" src="duplicate-mobile.mp3"></audio>
+
+    <script src="app.js"></script>
+</body>
+</html>
