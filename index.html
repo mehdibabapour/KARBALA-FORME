@@ -3,26 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ثبت‌نام قرعه‌کشی سفر کربلا</title>
+    <title>قرعه‌کشی سفر کربلا</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Vazirmatn', sans-serif; }
-        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9999; justify-content: center; align-items: center; }
-        #receipt-template {
-            position: absolute; left: -9999px; top: 0; width: 420px; padding: 28px 24px;
-            background: #0f0f14; color: #f5f5f5; font-family: 'Vazirmatn', sans-serif;
-            direction: rtl; border: 2px solid #d4af37; border-radius: 18px; box-sizing: border-box;
-        }
-        #receipt-template .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a2a33; }
-        #receipt-template .lbl { color: #d4af37; font-size: 14px; }
-        #receipt-template .val { font-size: 16px; font-weight: 700; direction: ltr; unicode-bidi: plaintext; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; }
+        #receipt-template { position: absolute; left: -9999px; top: -9999px; width: 400px; padding: 20px; background: #ffffff; border: 2px solid #800000; font-family: 'Vazirmatn', sans-serif; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-8 px-4">
 
-    <!-- Loading -->
+    <!-- Loading Overlay -->
     <div id="loading" class="loading-overlay">
         <div class="text-white text-center">
             <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white mb-4 mx-auto"></div>
@@ -30,50 +23,52 @@
         </div>
     </div>
 
+    <!-- Main Container -->
     <div class="max-w-md w-full bg-yellow-400 rounded-2xl shadow-2xl overflow-hidden">
+
+        <!-- Poster Image -->
         <div class="w-full">
             <img src="poster.png" alt="Poster" class="w-full h-auto object-cover">
         </div>
 
+        <!-- Content Area -->
         <div class="p-6">
-            <h1 class="text-2xl font-bold text-center text-red-900 mb-3">ثبت‌نام قرعه‌کشی سفر کربلا</h1>
+            <h1 id="formTitle" class="text-2xl font-bold text-center text-red-900 mb-1">قرعه‌کشی سفر کربلا</h1>
+            <p id="formSubtitle" class="text-center text-red-900 mb-3"></p>
 
-            <!-- Countdown -->
+            <!-- Countdown Timer -->
             <div id="countdownBox" class="hidden text-center bg-red-50 border-2 border-red-900 rounded-lg p-3 mb-4">
-                <div class="text-red-900 font-bold text-sm mb-1">زمان باقی‌مانده تا پایان ثبت‌نام</div>
-                <div id="countdownText" class="text-red-900 font-bold text-lg" dir="rtl">...</div>
-            </div>
-
-            <!-- Closed page -->
-            <div id="closedBox" class="hidden text-center bg-red-50 border-2 border-red-900 rounded-xl p-8">
-                <div class="text-5xl mb-3">🔒</div>
-                <div class="text-red-900 font-bold text-2xl">ثبت‌نام به پایان رسیده است</div>
+                <div id="countdownLabel" class="text-red-900 font-bold text-sm mb-1">زمان باقی‌مانده تا پایان ثبت‌نام</div>
+                <div id="countdownText" class="text-red-900 font-bold text-xl" dir="rtl">...</div>
             </div>
 
             <!-- Form -->
-            <form id="lotteryForm" class="space-y-4">
+            <form id="lotteryForm" class="space-y-4" novalidate>
+
                 <div>
                     <label class="block text-red-900 font-bold mb-1">نام و نام خانوادگی</label>
-                    <input type="text" id="fullName" required placeholder="مثال: علی رضایی"
+                    <input type="text" id="fullName" placeholder="مثال: علی رضایی"
                         class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600" dir="rtl">
                 </div>
 
                 <div>
-                    <label class="block text-red-900 font-bold mb-1">کد ملی</label>
-                    <input type="text" id="nationalId" required maxlength="10" inputmode="numeric"
+                    <label class="block text-red-900 font-bold mb-1">کد ملی (۱۰ رقم)</label>
+                    <input type="text" id="nationalId" maxlength="10" inputmode="numeric"
                         class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600 text-left" dir="ltr">
                 </div>
 
                 <div>
                     <label class="block text-red-900 font-bold mb-1">شماره موبایل</label>
-                    <input type="tel" id="mobile" required maxlength="11" inputmode="numeric" placeholder="09xxxxxxxxx"
+                    <input type="tel" id="mobile" maxlength="11" inputmode="numeric"
                         class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600 text-left" dir="ltr">
                 </div>
 
+                <!-- زائر اولی -->
                 <div class="flex items-center gap-3 bg-red-50 border-2 border-red-900 rounded-lg p-3">
-                    <input type="checkbox" id="isFirstPilgrim" class="w-5 h-5 accent-red-900 cursor-pointer flex-shrink-0">
+                    <input type="checkbox" id="isFirstPilgrim"
+                        class="w-5 h-5 accent-red-900 cursor-pointer flex-shrink-0">
                     <label for="isFirstPilgrim" class="text-red-900 font-bold cursor-pointer select-none">
-                        تأیید می‌کنم زائر اولی هستم
+                        زائر اولی هستم (اولین سفرم به کربلاست)
                     </label>
                 </div>
 
@@ -85,163 +80,187 @@
         </div>
     </div>
 
-    <div class="mt-8 text-gray-500 text-sm">Version 22</div>
+    <!-- Footer Version -->
+    <div class="mt-8 text-gray-500 text-sm">Version 23</div>
 
-    <!-- Receipt template (design C) -->
+    <!-- Hidden Receipt Template for Download -->
     <div id="receipt-template">
-        <div style="text-align:center; margin-bottom:14px;">
-            <div id="rec-title" style="font-size:22px; font-weight:800;">رسید قرعه‌کشی سفر کربلا</div>
-            <div id="rec-subtitle" style="font-size:14px; color:#d4af37; margin-top:6px;"></div>
-            <div style="height:2px; background:linear-gradient(90deg,transparent,#d4af37,transparent); margin-top:12px;"></div>
+        <div style="text-align: center; color: #800000; border-bottom: 2px solid #800000; padding-bottom: 10px; margin-bottom: 15px;">
+            <h2 id="rec-title" style="font-size: 22px; margin: 0;"></h2>
+            <p id="rec-subtitle" style="font-size: 14px; margin: 6px 0 0 0;"></p>
         </div>
-        <div class="row"><span class="lbl">نام و نام خانوادگی</span><span class="val" id="rec-name" style="direction:rtl"></span></div>
-        <div class="row"><span class="lbl">کد ملی</span><span class="val" id="rec-nat"></span></div>
-        <div class="row"><span class="lbl">شماره موبایل</span><span class="val" id="rec-mob"></span></div>
-        <div style="margin-top:20px; text-align:center;">
-            <div style="color:#d4af37; font-size:13px; margin-bottom:8px;">کد رهگیری</div>
-            <div id="rec-code" style="display:inline-block; border:2px solid #d4af37; border-radius:12px; padding:10px 22px; font-size:26px; font-weight:800; color:#d4af37; letter-spacing:2px; direction:ltr;"></div>
+        <div style="font-size: 16px; line-height: 1.8; text-align: right; direction: rtl;">
+            <p><strong>نام:</strong> <span id="rec-name"></span></p>
+            <p><strong>کد ملی:</strong> <span id="rec-nat" style="direction: ltr; display: block; text-align: left;"></span></p>
+            <p><strong>موبایل:</strong> <span id="rec-mob" style="direction: ltr; display: block; text-align: left;"></span></p>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px dashed #800000;">
+            <p style="text-align: center; font-size: 18px;"><strong>کد رهگیری:</strong></p>
+            <p id="rec-code" style="text-align: center; font-size: 24px; color: #800000; margin: 0; direction: ltr;"></p>
         </div>
-        <div style="text-align:center; margin-top:20px;">
-            <div id="rec-footer" style="font-size:14px; color:#d4af37;"></div>
-            <div id="rec-footer-sub" style="font-size:12px; color:#9a9aa5; margin-top:6px;"></div>
+        <div style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+            <div id="rec-footer" style="font-size: 13px; color: #444;"></div>
+            <div id="rec-footersub" style="font-size: 12px; color: #666; margin-top: 4px;"></div>
         </div>
     </div>
 
-    <!-- Popup -->
-    <div id="customPopup" class="fixed inset-0 flex items-center justify-center z-[10000] hidden p-4 bg-black/40">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+    <!-- Custom Popups -->
+    <div id="customPopup" class="fixed inset-0 flex items-center justify-center z-[10000] hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all">
             <div id="popupContent" class="p-6 text-center"></div>
         </div>
     </div>
 
-    <!-- Audio -->
-    <audio id="audioWelcome" src="welcome.mp3" preload="auto"></audio>
-    <audio id="audioLoading" src="Loading.mp3" preload="auto"></audio>
-    <audio id="audioSuccess" src="success.mp3" preload="auto"></audio>
-    <audio id="audioDuplicate" src="duplicate.mp3" preload="auto"></audio>
-    <audio id="audioDuplicateNational" src="duplicate-national.mp3" preload="auto"></audio>
-    <audio id="audioDuplicateMobile" src="duplicate-mobile.mp3" preload="auto"></audio>
+    <!-- Audio Elements -->
+    <audio id="audioWelcome" src="welcome.mp3"></audio>
+    <audio id="audioLoading" src="Loading.mp3"></audio>
+    <audio id="audioSuccess" src="success.mp3"></audio>
+    <audio id="audioDuplicate" src="duplicate.mp3"></audio>
+    <audio id="audioDuplicateNational" src="duplicate-national.mp3"></audio>
+    <audio id="audioDuplicateMobile" src="duplicate-mobile.mp3"></audio>
 
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwSkH5ncDk5P-vpebrMb2A8EBik1Jrzecw_kvG2RzEOMMV8MjmSuuG9JOtOICRbUq4/exec";
 
+        const DEFAULT_TEXTS = {
+            title: 'قرعه‌کشی سفر کربلا',
+            subtitle: '',
+            footer: 'با آرزوی موفقیت در قرعه‌کشی',
+            footerSub: ''
+        };
+        let texts = Object.assign({}, DEFAULT_TEXTS);
+
         const form = document.getElementById('lotteryForm');
         const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loading-text');
         const popup = document.getElementById('customPopup');
         const popupContent = document.getElementById('popupContent');
         const submitBtn = document.getElementById('submitBtn');
-        const chk = document.getElementById('isFirstPilgrim');
+        const isFirstPilgrimCheckbox = document.getElementById('isFirstPilgrim');
         let registrationClosed = false;
-        let busy = false;
-        let receiptTexts = {};
 
-        // ---------- ارقام ----------
+        // ---------- Digits ----------
         function toEnglishDigits(s) {
-            return String(s || '')
+            return String(s == null ? '' : s)
                 .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                .trim();
         }
         function toPersianDigits(s) {
             return String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
         }
-        ['nationalId', 'mobile'].forEach(id => {
-            const el = document.getElementById(id);
-            el.addEventListener('input', () => {
-                el.value = toEnglishDigits(el.value).replace(/\D/g, '');
-            });
-        });
 
-        // ---------- دکمه ----------
-        function updateSubmitBtn() {
-            const ok = chk.checked && !registrationClosed && !busy;
-            submitBtn.disabled = !ok;
-            submitBtn.classList.toggle('bg-green-600', ok);
-            submitBtn.classList.toggle('hover:bg-green-700', ok);
-            submitBtn.classList.toggle('cursor-pointer', ok);
-            submitBtn.classList.toggle('bg-gray-400', !ok);
-            submitBtn.classList.toggle('cursor-not-allowed', !ok);
-            submitBtn.classList.toggle('opacity-60', !ok);
+        // ---------- Texts from Settings ----------
+        function applyTexts(r) {
+            if (r && typeof r === 'object') {
+                ['title', 'subtitle', 'footer', 'footerSub'].forEach(k => {
+                    if (r[k] && String(r[k]).trim()) texts[k] = String(r[k]).trim();
+                });
+            }
+            document.getElementById('formTitle').textContent = texts.title;
+            document.getElementById('formSubtitle').textContent = texts.subtitle;
+            document.title = texts.title;
         }
-        chk.addEventListener('change', updateSubmitBtn);
+        applyTexts(null);
+
+        // ---------- Submit button ----------
+        function updateSubmitBtn() {
+            if (isFirstPilgrimCheckbox.checked && !registrationClosed) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'opacity-60');
+                submitBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
+                submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed', 'opacity-60');
+            }
+        }
+        isFirstPilgrimCheckbox.addEventListener('change', updateSubmitBtn);
         updateSubmitBtn();
 
-        // ---------- صدا ----------
-        const ALL_SOUNDS = ['audioWelcome','audioLoading','audioSuccess','audioDuplicate','audioDuplicateNational','audioDuplicateMobile'];
-        function stopAllSounds() {
-            ALL_SOUNDS.forEach(id => {
-                const a = document.getElementById(id);
-                if (a) { a.pause(); a.currentTime = 0; }
-            });
+        // ---------- Countdown ----------
+        function parseDeadline(raw) {
+            if (!raw) return null;
+            let s = String(raw).trim();
+            if (/^\d{4}-\d{2}-\d{2} \d/.test(s)) s = s.replace(' ', 'T');
+            const d = new Date(s);
+            return isNaN(d.getTime()) ? null : d;
         }
-        function playSound(id) {
-            stopAllSounds();
-            const a = document.getElementById(id);
-            if (a) a.play().catch(() => {});
-        }
-        // خوش‌آمد: تلاش در بارگذاری، در صورت مسدود بودن با اولین لمس
-        let welcomePlayed = false;
-        function tryWelcome() {
-            if (welcomePlayed) return;
-            const a = document.getElementById('audioWelcome');
-            a.play().then(() => { welcomePlayed = true; }).catch(() => {});
-        }
-        window.addEventListener('load', tryWelcome);
-        ['click', 'touchstart', 'keydown'].forEach(ev =>
-            window.addEventListener(ev, () => { if (!welcomePlayed && !busy) { welcomePlayed = true; playSound('audioWelcome'); } }, { once: true })
-        );
 
-        // ---------- صفحه پایان ----------
         function showClosed() {
             registrationClosed = true;
-            form.classList.add('hidden');
-            document.getElementById('countdownBox').classList.add('hidden');
-            document.getElementById('closedBox').classList.remove('hidden');
+            document.getElementById('countdownBox').classList.remove('hidden');
+            document.getElementById('countdownLabel').style.display = 'none';
+            document.getElementById('countdownText').innerText = 'ثبت‌نام به پایان رسیده است';
             updateSubmitBtn();
         }
 
-        // ---------- شمارش معکوس ----------
-        function parseDeadline(raw) {
-            if (!raw) return null;
-            const d = new Date(String(raw).trim());
-            return isNaN(d.getTime()) ? null : d;
-        }
         function startCountdown(deadline) {
             const box = document.getElementById('countdownBox');
             const text = document.getElementById('countdownText');
             box.classList.remove('hidden');
-            let timer;
+
             function tick() {
                 const diff = deadline.getTime() - Date.now();
-                if (diff <= 0) { clearInterval(timer); showClosed(); return; }
-                const d = Math.floor(diff / 86400000);
-                const h = Math.floor((diff % 86400000) / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                const s = Math.floor((diff % 60000) / 1000);
-                text.innerText = toPersianDigits(`${d} روز و ${h} ساعت و ${m} دقیقه و ${s} ثانیه`);
+                if (diff <= 0) {
+                    clearInterval(timer);
+                    showClosed();
+                    return;
+                }
+                const days = Math.floor(diff / 86400000);
+                const hours = Math.floor((diff % 86400000) / 3600000);
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                text.innerText = toPersianDigits(
+                    days + ' روز و ' + hours + ' ساعت و ' + minutes + ' دقیقه و ' + seconds + ' ثانیه'
+                );
             }
-            timer = setInterval(tick, 1000);
+            const timer = setInterval(tick, 1000);
             tick();
         }
+
         async function loadDeadline() {
             try {
-                const r = await fetch(`${WEB_APP_URL}?action=getDeadline`, { redirect: 'follow' });
-                const result = JSON.parse(await r.text());
-                if (result.status === 'closed') return showClosed();
-                if (result.receipt) receiptTexts = result.receipt;
-                const dl = parseDeadline(result.deadline);
-                if (dl) startCountdown(dl);
-            } catch (err) { console.error('Deadline error:', err); }
+                const response = await fetch(`${WEB_APP_URL}?action=getDeadline`, { method: 'GET', redirect: 'follow' });
+                const result = JSON.parse(await response.text());
+                applyTexts(result.receipt);
+                if (result.status === 'closed') {
+                    showClosed();
+                } else {
+                    const deadline = parseDeadline(result.deadline);
+                    if (deadline) startCountdown(deadline);
+                }
+            } catch (err) {
+                console.error('Deadline error:', err);
+            }
         }
         loadDeadline();
 
-        // ---------- پنجره پیام ----------
+        // ---------- Audio ----------
+        const ALL_SOUNDS = ['audioWelcome', 'audioLoading', 'audioSuccess', 'audioDuplicate', 'audioDuplicateNational', 'audioDuplicateMobile'];
+
+        function stopAllSounds() {
+            ALL_SOUNDS.forEach(id => {
+                const s = document.getElementById(id);
+                if (s) { s.pause(); s.currentTime = 0; }
+            });
+        }
+
+        function playSound(id) {
+            stopAllSounds();
+            const sound = document.getElementById(id);
+            if (sound) sound.play().catch(() => console.log('Audio play blocked'));
+        }
+
+        // ---------- Popup ----------
         function showPopup(title, message, type, buttonText, callback) {
-            const ok = type === 'success';
             popupContent.innerHTML = `
-                <h3 class="text-xl font-bold mb-2 ${ok ? 'text-green-600' : 'text-red-600'}">${title}</h3>
+                <h3 class="text-xl font-bold mb-2 ${type === 'success' ? 'text-green-600' : 'text-red-600'}">${title}</h3>
                 <p class="text-gray-700 mb-6">${message}</p>
-                <button id="popupBtn" class="w-full py-3 rounded-xl font-bold text-white ${ok ? 'bg-green-600' : 'bg-red-600'}">${buttonText}</button>`;
-            popup.querySelector('div').className = `bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border-t-8 ${ok ? 'border-green-500' : 'border-red-500'}`;
+                <button id="popupBtn" class="w-full py-3 rounded-xl font-bold text-white transition ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}">
+                    ${buttonText}
+                </button>
+            `;
+            popup.querySelector('div').className = `bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all ${type === 'success' ? 'border-t-8 border-green-500' : 'border-t-8 border-red-500'}`;
             popup.classList.remove('hidden');
             document.getElementById('popupBtn').onclick = () => {
                 popup.classList.add('hidden');
@@ -249,89 +268,133 @@
             };
         }
 
-        // ---------- رسید JPG ----------
+        // ---------- Receipt (JPG) ----------
         async function downloadReceipt(name, nat, mob, code) {
-            document.getElementById('rec-title').innerText = receiptTexts.title || 'رسید قرعه‌کشی سفر کربلا';
-            document.getElementById('rec-subtitle').innerText = receiptTexts.subtitle || '';
-            document.getElementById('rec-name').innerText = name;
-            document.getElementById('rec-nat').innerText = nat;
-            document.getElementById('rec-mob').innerText = mob;
-            document.getElementById('rec-code').innerText = code;
-            document.getElementById('rec-footer').innerText = receiptTexts.footer || 'با آرزوی موفقیت در قرعه‌کشی';
-            document.getElementById('rec-footer-sub').innerText = receiptTexts.footerSub || '';
-            if (document.fonts && document.fonts.ready) await document.fonts.ready;
-            const canvas = await html2canvas(document.getElementById('receipt-template'), { scale: 2, backgroundColor: '#0f0f14' });
+            document.getElementById('rec-title').textContent = 'رسید ' + texts.title;
+            document.getElementById('rec-subtitle').textContent = texts.subtitle;
+            document.getElementById('rec-name').textContent = name;
+            document.getElementById('rec-nat').textContent = nat;
+            document.getElementById('rec-mob').textContent = mob;
+            document.getElementById('rec-code').textContent = code;
+            document.getElementById('rec-footer').textContent = texts.footer;
+            document.getElementById('rec-footersub').textContent = texts.footerSub;
+
+            const template = document.getElementById('receipt-template');
+            const canvas = await html2canvas(template, { scale: 2, backgroundColor: '#ffffff' });
+            const image = canvas.toDataURL('image/jpeg', 0.95);
             const link = document.createElement('a');
             link.download = `receipt-${code}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.href = image;
             link.click();
         }
 
-        // ---------- ثبت ----------
+        // ---------- Submit ----------
         form.onsubmit = async (e) => {
             e.preventDefault();
-            if (registrationClosed || busy) return;
+            if (registrationClosed) return;
 
             const fullName = document.getElementById('fullName').value.trim();
-            const nationalId = toEnglishDigits(document.getElementById('nationalId').value.trim());
-            const mobile = toEnglishDigits(document.getElementById('mobile').value.trim());
-            const isFirstPilgrim = chk.checked;
+            const nationalId = toEnglishDigits(document.getElementById('nationalId').value).replace(/\D/g, '');
+            let mobile = toEnglishDigits(document.getElementById('mobile').value).replace(/\D/g, '');
+            if (mobile.length === 10 && mobile.charAt(0) === '9') mobile = '0' + mobile;
 
-            if (!/^\d{8,10}$/.test(nationalId)) { showPopup('❌ کد ملی نامعتبر', 'کد ملی باید ۱۰ رقم باشد.', 'error', 'متوجه شدم', null); return; }
-            if (!/^09\d{9}$/.test(mobile)) { showPopup('❌ موبایل نامعتبر', 'شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد.', 'error', 'متوجه شدم', null); return; }
+            if (!fullName) {
+                showPopup('⚠️ نام وارد نشده', 'لطفاً نام و نام خانوادگی را وارد کنید.', 'error', 'متوجه شدم', null);
+                return;
+            }
+            if (!/^\d{10}$/.test(nationalId)) {
+                showPopup('⚠️ کد ملی اشتباه است', 'کد ملی باید دقیقاً ۱۰ رقم باشد.', 'error', 'متوجه شدم', null);
+                return;
+            }
+            if (!/^09\d{9}$/.test(mobile)) {
+                showPopup('⚠️ شماره موبایل اشتباه است', 'شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.', 'error', 'متوجه شدم', null);
+                return;
+            }
 
-            busy = true; updateSubmitBtn();
             loading.style.display = 'flex';
-            document.getElementById('loading-text').innerText = 'در حال برقراری ارتباط...';
+            loadingText.innerText = 'در حال برقراری ارتباط...';
             playSound('audioLoading');
 
             try {
                 const url = `${WEB_APP_URL}?action=register`
                     + `&fullName=${encodeURIComponent(fullName)}`
                     + `&nationalId=${encodeURIComponent(nationalId)}`
-                    + `&mobile=${encodeURIComponent(mobile)}`
-                    + `&isFirstPilgrim=${encodeURIComponent(isFirstPilgrim)}`;
-                const response = await fetch(url, { redirect: 'follow' });
+                    + `&mobile=${encodeURIComponent(mobile)}`;
+
+                const response = await fetch(url, { method: 'GET', redirect: 'follow' });
                 const text = await response.text();
                 let result;
-                try { result = JSON.parse(text); }
-                catch (_) { throw new Error('پاسخ سرور قابل تجزیه نیست'); }
+                try {
+                    result = JSON.parse(text);
+                } catch (parseErr) {
+                    console.error('Server raw response:', text);
+                    throw new Error('پاسخ سرور قابل تجزیه نیست: ' + text.substring(0, 100));
+                }
 
                 loading.style.display = 'none';
-                stopAllSounds();
 
                 if (result.status === 'success') {
                     playSound('audioSuccess');
-                    showPopup('🎉 موفقیت‌آمیز!', 'ثبت‌نام شما با موفقیت انجام شد. لطفاً رسید خود را دریافت کنید.', 'success',
-                        '📥 دانلود رسید', () => downloadReceipt(fullName, nationalId, mobile, result.trackingCode));
+                    showPopup(
+                        '🎉 موفقیت‌آمیز!',
+                        'ثبت‌نام شما با موفقیت انجام شد. لطفاً رسید خود را دریافت کنید.',
+                        'success',
+                        '📥 دانلود رسید',
+                        () => downloadReceipt(fullName, nationalId, mobile, result.trackingCode)
+                    );
                 } else if (result.status === 'duplicate') {
                     playSound('audioDuplicate');
-                    showPopup('⚠️ اطلاعات شما قبلاً ثبت شده است', 'برای دریافت مجدد رسید روی دکمه زیر بزنید.', 'error',
-                        '📥 دانلود رسید',
-                        () => downloadReceipt(result.storedName || fullName, result.storedNationalId || nationalId, result.storedMobile || mobile, result.trackingCode));
+                    showPopup(
+                        '⚠️ قبلاً ثبت‌نام کرده‌اید',
+                        'کد ملی و شماره موبایل شما قبلاً ثبت شده است. برای دریافت مجدد رسید، روی دکمه زیر کلیک کنید.',
+                        'error',
+                        '📥 دریافت مجدد رسید',
+                        () => downloadReceipt(result.storedName || fullName, result.storedNationalId || nationalId, result.storedMobile || mobile, result.trackingCode)
+                    );
                 } else if (result.status === 'duplicate_national') {
-                    playSound('audioDuplicateMobile');
-                    showPopup('⚠️ کد ملی تکراری است', 'این کد ملی قبلاً با شماره موبایل دیگری ثبت شده است.', 'error', 'متوجه شدم', null);
-                } else if (result.status === 'duplicate_mobile') {
                     playSound('audioDuplicateNational');
-                    showPopup('⚠️ شماره موبایل تکراری است', 'این شماره موبایل قبلاً با کد ملی دیگری ثبت شده است.', 'error', 'متوجه شدم', null);
+                    showPopup('⚠️ کد ملی شما تکراری است', 'کد ملی شما قبلاً در سیستم ثبت شده است.', 'error', 'متوجه شدم', null);
+                } else if (result.status === 'duplicate_mobile') {
+                    playSound('audioDuplicateMobile');
+                    showPopup('⚠️ شماره موبایل شما تکراری است', 'شماره موبایل شما قبلاً در سیستم ثبت شده است.', 'error', 'متوجه شدم', null);
                 } else if (result.status === 'duplicate_both') {
                     playSound('audioDuplicateNational');
-                    showPopup('⚠️ کد ملی و موبایل تکراری است', 'کد ملی و شماره موبایل شما هر دو قبلاً در ثبت‌های جداگانه استفاده شده‌اند.', 'error', 'متوجه شدم', null);
+                    showPopup('⚠️ اطلاعات تکراری است', 'کد ملی و شماره موبایل شما هر دو قبلاً ثبت شده‌اند، اما در دو ثبت‌نام جداگانه.', 'error', 'متوجه شدم', null);
                 } else if (result.status === 'closed') {
+                    stopAllSounds();
                     showClosed();
+                    showPopup('🔒 ثبت‌نام بسته است', result.message || 'ثبت‌نام به پایان رسیده است.', 'error', 'متوجه شدم', null);
+                } else if (result.message === 'invalid_national') {
+                    stopAllSounds();
+                    showPopup('⚠️ کد ملی اشتباه است', 'کد ملی باید دقیقاً ۱۰ رقم باشد.', 'error', 'متوجه شدم', null);
+                } else if (result.message === 'invalid_mobile') {
+                    stopAllSounds();
+                    showPopup('⚠️ شماره موبایل اشتباه است', 'شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.', 'error', 'متوجه شدم', null);
                 } else {
                     throw new Error(result.message || 'خطای ناشناخته از سرور');
                 }
+
             } catch (error) {
                 loading.style.display = 'none';
                 stopAllSounds();
-                console.error(error);
-                showPopup('❌ خطا', 'خطایی در ارتباط با سرور رخ داد. لطفاً دوباره تلاش کنید.', 'error', 'تلاش مجدد', null);
-            } finally {
-                busy = false; updateSubmitBtn();
+                console.error('Error details:', error);
+                showPopup(
+                    '❌ خطا',
+                    'خطایی در ارتباط با سرور رخ داد. لطفاً دوباره تلاش کنید.<br><small style="color:#999">' + error.message + '</small>',
+                    'error',
+                    'تلاش مجدد',
+                    null
+                );
             }
         };
+
+        // ---------- Welcome sound (on first tap) ----------
+        window.addEventListener('click', () => {
+            if (!window.welcomePlayed) {
+                playSound('audioWelcome');
+                window.welcomePlayed = true;
+            }
+        }, { once: true });
     </script>
 </body>
 </html>
