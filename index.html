@@ -6,14 +6,19 @@
     <title>قرعه‌کشی سفر کربلا</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Vazirmatn', sans-serif; }
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; }
-        #receipt-template { position: absolute; left: -9999px; top: -9999px; width: 400px; padding: 20px; background: #ffffff; border: 2px solid #800000; font-family: 'Vazirmatn', sans-serif; }
+        #receipt-template { position: absolute; left: -9999px; top: -9999px; width: 450px; background: #14151a; color: #fff; font-family: 'Vazirmatn', sans-serif; direction: rtl; box-sizing: border-box; border-top: 8px solid #e0b64a; padding: 40px 36px 36px; }
+        #receipt-template .rrow { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #2a2c33; }
+        #receipt-template .rlbl { color: #9a9ca6; font-size: 14px; }
+        #receipt-template .rval { color: #fff; font-size: 18px; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-8 px-4">
+
 
     <!-- Loading Overlay -->
     <div id="loading" class="loading-overlay">
@@ -23,18 +28,22 @@
         </div>
     </div>
 
+
     <!-- Main Container -->
     <div class="max-w-md w-full bg-yellow-400 rounded-2xl shadow-2xl overflow-hidden">
+
 
         <!-- Poster Image -->
         <div class="w-full">
             <img src="poster.png" alt="Poster" class="w-full h-auto object-cover">
         </div>
 
+
         <!-- Content Area -->
         <div class="p-6">
             <h1 id="formTitle" class="text-2xl font-bold text-center text-red-900 mb-1">قرعه‌کشی سفر کربلا</h1>
             <p id="formSubtitle" class="text-center text-red-900 mb-3"></p>
+
 
             <!-- Countdown Timer -->
             <div id="countdownBox" class="hidden text-center bg-red-50 border-2 border-red-900 rounded-lg p-3 mb-4">
@@ -42,8 +51,10 @@
                 <div id="countdownText" class="text-red-900 font-bold text-xl" dir="rtl">...</div>
             </div>
 
+
             <!-- Form -->
             <form id="lotteryForm" class="space-y-4" novalidate>
+
 
                 <div>
                     <label class="block text-red-900 font-bold mb-1">نام و نام خانوادگی</label>
@@ -51,17 +62,20 @@
                         class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600" dir="rtl">
                 </div>
 
+
                 <div>
                     <label class="block text-red-900 font-bold mb-1">کد ملی (۱۰ رقم)</label>
                     <input type="text" id="nationalId" maxlength="10" inputmode="numeric"
                         class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600 text-left" dir="ltr">
                 </div>
 
+
                 <div>
                     <label class="block text-red-900 font-bold mb-1">شماره موبایل</label>
                     <input type="tel" id="mobile" maxlength="11" inputmode="numeric"
                         class="w-full p-3 rounded-lg border-2 border-red-900 focus:outline-none focus:ring-2 focus:ring-red-600 text-left" dir="ltr">
                 </div>
+
 
                 <!-- زائر اولی -->
                 <div class="flex items-center gap-3 bg-red-50 border-2 border-red-900 rounded-lg p-3">
@@ -72,6 +86,7 @@
                     </label>
                 </div>
 
+
                 <button type="submit" id="submitBtn" disabled
                     class="w-full bg-gray-400 text-white font-bold py-4 rounded-xl text-xl transition duration-300 shadow-lg cursor-not-allowed opacity-60">
                     ثبت درخواست
@@ -80,28 +95,33 @@
         </div>
     </div>
 
-    <!-- Footer Version -->
-    <div class="mt-8 text-gray-500 text-sm">Version 23</div>
 
-    <!-- Hidden Receipt Template for Download -->
+    <!-- Footer Version -->
+    <div class="mt-8 text-gray-500 text-sm">Version 24</div>
+
+
+    <!-- Hidden Receipt Template (design C) -->
     <div id="receipt-template">
-        <div style="text-align: center; color: #800000; border-bottom: 2px solid #800000; padding-bottom: 10px; margin-bottom: 15px;">
-            <h2 id="rec-title" style="font-size: 22px; margin: 0;"></h2>
-            <p id="rec-subtitle" style="font-size: 14px; margin: 6px 0 0 0;"></p>
+        <div style="text-align:center; margin-bottom:28px;">
+            <div id="rec-title" style="font-size:24px; font-weight:700;"></div>
+            <div id="rec-subtitle" style="font-size:15px; color:#e0b64a; margin-top:8px;"></div>
         </div>
-        <div style="font-size: 16px; line-height: 1.8; text-align: right; direction: rtl;">
-            <p><strong>نام:</strong> <span id="rec-name"></span></p>
-            <p><strong>کد ملی:</strong> <span id="rec-nat" style="direction: ltr; display: block; text-align: left;"></span></p>
-            <p><strong>موبایل:</strong> <span id="rec-mob" style="direction: ltr; display: block; text-align: left;"></span></p>
-            <hr style="margin: 15px 0; border: 0; border-top: 1px dashed #800000;">
-            <p style="text-align: center; font-size: 18px;"><strong>کد رهگیری:</strong></p>
-            <p id="rec-code" style="text-align: center; font-size: 24px; color: #800000; margin: 0; direction: ltr;"></p>
+        <div class="rrow"><span class="rlbl">نام و نام خانوادگی</span><span class="rval" id="rec-name"></span></div>
+        <div class="rrow"><span class="rlbl">کد ملی</span><span class="rval" id="rec-nat"></span></div>
+        <div class="rrow"><span class="rlbl">شماره موبایل</span><span class="rval" id="rec-mob"></span></div>
+        <div style="margin-top:30px; background:#1e222b; border:1px solid #e0b64a; border-radius:18px; padding:18px 10px; text-align:center;">
+            <div style="color:#9a9ca6; font-size:14px; margin-bottom:8px;">کد رهگیری</div>
+            <div id="rec-code" style="color:#e0b64a; font-size:28px; direction:ltr;"></div>
+            <div style="margin-top:18px; background:#fff; border-radius:10px; padding:10px; text-align:center;">
+                <svg id="rec-barcode"></svg>
+            </div>
         </div>
-        <div style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
-            <div id="rec-footer" style="font-size: 13px; color: #444;"></div>
-            <div id="rec-footersub" style="font-size: 12px; color: #666; margin-top: 4px;"></div>
+        <div style="text-align:center; margin-top:26px;">
+            <div id="rec-footer" style="font-size:14px; color:#e0b64a;"></div>
+            <div id="rec-footersub" style="font-size:12px; color:#9a9ca6; margin-top:6px;"></div>
         </div>
     </div>
+
 
     <!-- Custom Popups -->
     <div id="customPopup" class="fixed inset-0 flex items-center justify-center z-[10000] hidden p-4">
@@ -109,6 +129,7 @@
             <div id="popupContent" class="p-6 text-center"></div>
         </div>
     </div>
+
 
     <!-- Audio Elements -->
     <audio id="audioWelcome" src="welcome.mp3"></audio>
@@ -118,8 +139,10 @@
     <audio id="audioDuplicateNational" src="duplicate-national.mp3"></audio>
     <audio id="audioDuplicateMobile" src="duplicate-mobile.mp3"></audio>
 
+
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwSkH5ncDk5P-vpebrMb2A8EBik1Jrzecw_kvG2RzEOMMV8MjmSuuG9JOtOICRbUq4/exec";
+
 
         const DEFAULT_TEXTS = {
             title: 'قرعه‌کشی سفر کربلا',
@@ -128,6 +151,7 @@
             footerSub: ''
         };
         let texts = Object.assign({}, DEFAULT_TEXTS);
+
 
         const form = document.getElementById('lotteryForm');
         const loading = document.getElementById('loading');
@@ -138,6 +162,7 @@
         const isFirstPilgrimCheckbox = document.getElementById('isFirstPilgrim');
         let registrationClosed = false;
 
+
         // ---------- Digits ----------
         function toEnglishDigits(s) {
             return String(s == null ? '' : s)
@@ -146,8 +171,9 @@
                 .trim();
         }
         function toPersianDigits(s) {
-            return String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+            return String(s == null ? '' : s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
         }
+
 
         // ---------- Texts from Settings ----------
         function applyTexts(r) {
@@ -156,11 +182,12 @@
                     if (r[k] && String(r[k]).trim()) texts[k] = String(r[k]).trim();
                 });
             }
-            document.getElementById('formTitle').textContent = texts.title;
-            document.getElementById('formSubtitle').textContent = texts.subtitle;
-            document.title = texts.title;
+            document.getElementById('formTitle').textContent = toPersianDigits(texts.title);
+            document.getElementById('formSubtitle').textContent = toPersianDigits(texts.subtitle);
+            document.title = toPersianDigits(texts.title);
         }
         applyTexts(null);
+
 
         // ---------- Submit button ----------
         function updateSubmitBtn() {
@@ -177,6 +204,7 @@
         isFirstPilgrimCheckbox.addEventListener('change', updateSubmitBtn);
         updateSubmitBtn();
 
+
         // ---------- Countdown ----------
         function parseDeadline(raw) {
             if (!raw) return null;
@@ -186,6 +214,7 @@
             return isNaN(d.getTime()) ? null : d;
         }
 
+
         function showClosed() {
             registrationClosed = true;
             document.getElementById('countdownBox').classList.remove('hidden');
@@ -194,10 +223,12 @@
             updateSubmitBtn();
         }
 
+
         function startCountdown(deadline) {
             const box = document.getElementById('countdownBox');
             const text = document.getElementById('countdownText');
             box.classList.remove('hidden');
+
 
             function tick() {
                 const diff = deadline.getTime() - Date.now();
@@ -218,6 +249,7 @@
             tick();
         }
 
+
         async function loadDeadline() {
             try {
                 const response = await fetch(`${WEB_APP_URL}?action=getDeadline`, { method: 'GET', redirect: 'follow' });
@@ -235,8 +267,10 @@
         }
         loadDeadline();
 
+
         // ---------- Audio ----------
         const ALL_SOUNDS = ['audioWelcome', 'audioLoading', 'audioSuccess', 'audioDuplicate', 'audioDuplicateNational', 'audioDuplicateMobile'];
+
 
         function stopAllSounds() {
             ALL_SOUNDS.forEach(id => {
@@ -245,11 +279,13 @@
             });
         }
 
+
         function playSound(id) {
             stopAllSounds();
             const sound = document.getElementById(id);
             if (sound) sound.play().catch(() => console.log('Audio play blocked'));
         }
+
 
         // ---------- Popup ----------
         function showPopup(title, message, type, buttonText, callback) {
@@ -262,25 +298,44 @@
             `;
             popup.querySelector('div').className = `bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all ${type === 'success' ? 'border-t-8 border-green-500' : 'border-t-8 border-red-500'}`;
             popup.classList.remove('hidden');
+
+
+            // اعداد متن پاپ‌آپ فارسی شود (ساختار HTML دست نمی‌خورد)
+            const walker = document.createTreeWalker(popupContent, NodeFilter.SHOW_TEXT);
+            while (walker.nextNode()) walker.currentNode.nodeValue = toPersianDigits(walker.currentNode.nodeValue);
+
+
             document.getElementById('popupBtn').onclick = () => {
                 popup.classList.add('hidden');
                 if (callback) callback();
             };
         }
 
+
         // ---------- Receipt (JPG) ----------
         async function downloadReceipt(name, nat, mob, code) {
-            document.getElementById('rec-title').textContent = 'رسید ' + texts.title;
-            document.getElementById('rec-subtitle').textContent = texts.subtitle;
-            document.getElementById('rec-name').textContent = name;
-            document.getElementById('rec-nat').textContent = nat;
-            document.getElementById('rec-mob').textContent = mob;
-            document.getElementById('rec-code').textContent = code;
-            document.getElementById('rec-footer').textContent = texts.footer;
-            document.getElementById('rec-footersub').textContent = texts.footerSub;
+            const P = toPersianDigits;
+            document.getElementById('rec-title').textContent = P('رسید ' + texts.title);
+            document.getElementById('rec-subtitle').textContent = P(texts.subtitle);
+            document.getElementById('rec-name').textContent = P(name);
+            document.getElementById('rec-nat').textContent = P(nat);
+            document.getElementById('rec-mob').textContent = P(mob);
+            document.getElementById('rec-code').textContent = P(code);
+            document.getElementById('rec-footer').textContent = P(texts.footer);
+            document.getElementById('rec-footersub').textContent = P(texts.footerSub);
+
+
+            // بارکد از کد رهگیری انگلیسی ساخته می‌شود (برای اسکن)
+            try {
+                JsBarcode('#rec-barcode', code, {
+                    format: 'CODE128', width: 2, height: 60,
+                    displayValue: false, margin: 0, lineColor: '#000'
+                });
+            } catch (e) { console.error('Barcode error', e); }
+
 
             const template = document.getElementById('receipt-template');
-            const canvas = await html2canvas(template, { scale: 2, backgroundColor: '#ffffff' });
+            const canvas = await html2canvas(template, { scale: 2, backgroundColor: '#14151a' });
             const image = canvas.toDataURL('image/jpeg', 0.95);
             const link = document.createElement('a');
             link.download = `receipt-${code}.jpg`;
@@ -288,15 +343,18 @@
             link.click();
         }
 
+
         // ---------- Submit ----------
         form.onsubmit = async (e) => {
             e.preventDefault();
             if (registrationClosed) return;
 
+
             const fullName = document.getElementById('fullName').value.trim();
             const nationalId = toEnglishDigits(document.getElementById('nationalId').value).replace(/\D/g, '');
             let mobile = toEnglishDigits(document.getElementById('mobile').value).replace(/\D/g, '');
             if (mobile.length === 10 && mobile.charAt(0) === '9') mobile = '0' + mobile;
+
 
             if (!fullName) {
                 showPopup('⚠️ نام وارد نشده', 'لطفاً نام و نام خانوادگی را وارد کنید.', 'error', 'متوجه شدم', null);
@@ -311,15 +369,18 @@
                 return;
             }
 
+
             loading.style.display = 'flex';
             loadingText.innerText = 'در حال برقراری ارتباط...';
             playSound('audioLoading');
+
 
             try {
                 const url = `${WEB_APP_URL}?action=register`
                     + `&fullName=${encodeURIComponent(fullName)}`
                     + `&nationalId=${encodeURIComponent(nationalId)}`
                     + `&mobile=${encodeURIComponent(mobile)}`;
+
 
                 const response = await fetch(url, { method: 'GET', redirect: 'follow' });
                 const text = await response.text();
@@ -331,7 +392,9 @@
                     throw new Error('پاسخ سرور قابل تجزیه نیست: ' + text.substring(0, 100));
                 }
 
+
                 loading.style.display = 'none';
+
 
                 if (result.status === 'success') {
                     playSound('audioSuccess');
@@ -374,6 +437,7 @@
                     throw new Error(result.message || 'خطای ناشناخته از سرور');
                 }
 
+
             } catch (error) {
                 loading.style.display = 'none';
                 stopAllSounds();
@@ -387,6 +451,7 @@
                 );
             }
         };
+
 
         // ---------- Welcome sound (on first tap) ----------
         window.addEventListener('click', () => {
