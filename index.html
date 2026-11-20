@@ -85,13 +85,13 @@
         </div>
     </div>
 
-    <div class="mt-8 text-gray-500 text-sm">Version 21</div>
+    <div class="mt-8 text-gray-500 text-sm">Version 22</div>
 
     <!-- Receipt template (design C) -->
     <div id="receipt-template">
         <div style="text-align:center; margin-bottom:14px;">
-            <div style="color:#d4af37; font-size:13px; letter-spacing:1px;">KARBALA LOTTERY</div>
-            <div style="font-size:22px; font-weight:800; margin-top:4px;">رسید قرعه‌کشی سفر کربلا</div>
+            <div id="rec-title" style="font-size:22px; font-weight:800;">رسید قرعه‌کشی سفر کربلا</div>
+            <div id="rec-subtitle" style="font-size:14px; color:#d4af37; margin-top:6px;"></div>
             <div style="height:2px; background:linear-gradient(90deg,transparent,#d4af37,transparent); margin-top:12px;"></div>
         </div>
         <div class="row"><span class="lbl">نام و نام خانوادگی</span><span class="val" id="rec-name" style="direction:rtl"></span></div>
@@ -101,7 +101,10 @@
             <div style="color:#d4af37; font-size:13px; margin-bottom:8px;">کد رهگیری</div>
             <div id="rec-code" style="display:inline-block; border:2px solid #d4af37; border-radius:12px; padding:10px 22px; font-size:26px; font-weight:800; color:#d4af37; letter-spacing:2px; direction:ltr;"></div>
         </div>
-        <div style="text-align:center; margin-top:20px; font-size:12px; color:#9a9aa5;">با آرزوی موفقیت در قرعه‌کشی</div>
+        <div style="text-align:center; margin-top:20px;">
+            <div id="rec-footer" style="font-size:14px; color:#d4af37;"></div>
+            <div id="rec-footer-sub" style="font-size:12px; color:#9a9aa5; margin-top:6px;"></div>
+        </div>
     </div>
 
     <!-- Popup -->
@@ -130,6 +133,7 @@
         const chk = document.getElementById('isFirstPilgrim');
         let registrationClosed = false;
         let busy = false;
+        let receiptTexts = {};
 
         // ---------- ارقام ----------
         function toEnglishDigits(s) {
@@ -223,6 +227,7 @@
                 const r = await fetch(`${WEB_APP_URL}?action=getDeadline`, { redirect: 'follow' });
                 const result = JSON.parse(await r.text());
                 if (result.status === 'closed') return showClosed();
+                if (result.receipt) receiptTexts = result.receipt;
                 const dl = parseDeadline(result.deadline);
                 if (dl) startCountdown(dl);
             } catch (err) { console.error('Deadline error:', err); }
@@ -246,10 +251,14 @@
 
         // ---------- رسید JPG ----------
         async function downloadReceipt(name, nat, mob, code) {
+            document.getElementById('rec-title').innerText = receiptTexts.title || 'رسید قرعه‌کشی سفر کربلا';
+            document.getElementById('rec-subtitle').innerText = receiptTexts.subtitle || '';
             document.getElementById('rec-name').innerText = name;
             document.getElementById('rec-nat').innerText = nat;
             document.getElementById('rec-mob').innerText = mob;
             document.getElementById('rec-code').innerText = code;
+            document.getElementById('rec-footer').innerText = receiptTexts.footer || 'با آرزوی موفقیت در قرعه‌کشی';
+            document.getElementById('rec-footer-sub').innerText = receiptTexts.footerSub || '';
             if (document.fonts && document.fonts.ready) await document.fonts.ready;
             const canvas = await html2canvas(document.getElementById('receipt-template'), { scale: 2, backgroundColor: '#0f0f14' });
             const link = document.createElement('a');
@@ -301,10 +310,10 @@
                         '📥 دانلود رسید',
                         () => downloadReceipt(result.storedName || fullName, result.storedNationalId || nationalId, result.storedMobile || mobile, result.trackingCode));
                 } else if (result.status === 'duplicate_national') {
-                    playSound('audioDuplicateNational');
+                    playSound('audioDuplicateMobile');
                     showPopup('⚠️ کد ملی تکراری است', 'این کد ملی قبلاً با شماره موبایل دیگری ثبت شده است.', 'error', 'متوجه شدم', null);
                 } else if (result.status === 'duplicate_mobile') {
-                    playSound('audioDuplicateMobile');
+                    playSound('audioDuplicateNational');
                     showPopup('⚠️ شماره موبایل تکراری است', 'این شماره موبایل قبلاً با کد ملی دیگری ثبت شده است.', 'error', 'متوجه شدم', null);
                 } else if (result.status === 'duplicate_both') {
                     playSound('audioDuplicateNational');
