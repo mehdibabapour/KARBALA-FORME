@@ -15,6 +15,7 @@
         #receipt-template .rrow { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #2a2c33; }
         #receipt-template .rlbl { color: #9a9ca6; font-size: 14px; }
         #receipt-template .rval { color: #fff; font-size: 18px; }
+        #popupContent { max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-8 px-4">
@@ -97,7 +98,7 @@
 
 
     <!-- Footer Version -->
-    <div class="mt-8 text-gray-500 text-sm">Version 24</div>
+    <div class="mt-8 text-gray-500 text-sm">Version 25</div>
 
 
     <!-- Hidden Receipt Template (design C) -->
@@ -124,7 +125,7 @@
 
 
     <!-- Custom Popups -->
-    <div id="customPopup" class="fixed inset-0 flex items-center justify-center z-[10000] hidden p-4">
+    <div id="customPopup" class="fixed inset-0 flex items-center justify-center z-[10000] hidden p-4" style="background:rgba(0,0,0,0.5)">
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all">
             <div id="popupContent" class="p-6 text-center"></div>
         </div>
@@ -288,6 +289,17 @@
 
 
         // ---------- Popup ----------
+        function convertPopupDigits() {
+            const walker = document.createTreeWalker(popupContent, NodeFilter.SHOW_TEXT);
+            while (walker.nextNode()) walker.currentNode.nodeValue = toPersianDigits(walker.currentNode.nodeValue);
+        }
+
+
+        function setPopupFrame(type) {
+            popup.querySelector('div').className = `bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all ${type === 'success' ? 'border-t-8 border-green-500' : 'border-t-8 border-red-500'}`;
+        }
+
+
         function showPopup(title, message, type, buttonText, callback) {
             popupContent.innerHTML = `
                 <h3 class="text-xl font-bold mb-2 ${type === 'success' ? 'text-green-600' : 'text-red-600'}">${title}</h3>
@@ -296,13 +308,9 @@
                     ${buttonText}
                 </button>
             `;
-            popup.querySelector('div').className = `bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all ${type === 'success' ? 'border-t-8 border-green-500' : 'border-t-8 border-red-500'}`;
+            setPopupFrame(type);
             popup.classList.remove('hidden');
-
-
-            // اعداد متن پاپ‌آپ فارسی شود (ساختار HTML دست نمی‌خورد)
-            const walker = document.createTreeWalker(popupContent, NodeFilter.SHOW_TEXT);
-            while (walker.nextNode()) walker.currentNode.nodeValue = toPersianDigits(walker.currentNode.nodeValue);
+            convertPopupDigits();
 
 
             document.getElementById('popupBtn').onclick = () => {
@@ -312,8 +320,9 @@
         }
 
 
-        // ---------- Receipt (JPG) ----------
-        async function downloadReceipt(name, nat, mob, code) {
+        // ---------- Receipt ----------
+        // مرحله ۱: ساخت تصویر (قبل از نمایش پیام، زیر صفحه loading)
+        async function buildReceipt(name, nat, mob, code) {
             const P = toPersianDigits;
             document.getElementById('rec-title').textContent = P('رسید ' + texts.title);
             document.getElementById('rec-subtitle').textContent = P(texts.subtitle);
@@ -325,7 +334,6 @@
             document.getElementById('rec-footersub').textContent = P(texts.footerSub);
 
 
-            // بارکد از کد رهگیری انگلیسی ساخته می‌شود (برای اسکن)
             try {
                 JsBarcode('#rec-barcode', code, {
                     format: 'CODE128', width: 2, height: 60,
@@ -334,13 +342,84 @@
             } catch (e) { console.error('Barcode error', e); }
 
 
+            if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+
+
             const template = document.getElementById('receipt-template');
-            const canvas = await html2canvas(template, { scale: 2, backgroundColor: '#14151a' });
-            const image = canvas.toDataURL('image/jpeg', 0.95);
+            let canvas;
+            try {
+                canvas = await html2canvas(template, { scale: 2, backgroundColor: '#14151a' });
+            } catch (e) {
+                // اگر حافظه دستگاه کم بود، با کیفیت کمتر دوباره تلاش می‌کنیم
+                canvas = await html2canvas(template, { scale: 1, backgroundColor: '#14151a' });
+            }
+
+
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+            if (!blob) throw new Error('ساخت تصویر رسید ناموفق بود');
+            const fileName = `receipt-${code}.jpg`;
+            const file = new File([blob], fileName, { type: 'image/jpeg' });
+            const url = URL.createObjectURL(blob);
+            return { blob, file, url, fileName };
+        }
+
+
+        // مرحله ۲: ذخیره (داخل همان لمس کاربر)
+        async function saveReceipt(receipt) {
+            // موبایل (آیفون و اندروید): منوی اشتراک با گزینه Save Image
+            try {
+                if (navigator.canShare && navigator.canShare({ files: [receipt.file] })) {
+                    await navigator.share({ files: [receipt.file], title: receipt.fileName });
+                    return;
+                }
+            } catch (err) {
+                if (err && err.name === 'AbortError') return; // کاربر بست
+                console.log('Share failed, fallback to download', err);
+            }
+            // کامپیوتر: دانلود مستقیم
             const link = document.createElement('a');
-            link.download = `receipt-${code}.jpg`;
-            link.href = image;
+            link.href = receipt.url;
+            link.download = receipt.fileName;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+        }
+
+
+        function showReceiptPopup(title, message, type, receipt) {
+            popupContent.innerHTML = `
+                <h3 class="text-xl font-bold mb-2 ${type === 'success' ? 'text-green-600' : 'text-red-600'}">${title}</h3>
+                <p class="text-gray-700 mb-4">${message}</p>
+                <img id="receiptImg" alt="رسید" class="w-full rounded-lg mb-3 border border-gray-300" style="-webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto;">
+                <button id="saveBtn" class="w-full py-3 rounded-xl font-bold text-white transition bg-green-600 mb-2">📥 ذخیره رسید</button>
+                <p class="text-gray-500 text-xs mb-3">اگر دکمه بالا ذخیره نکرد، انگشت خود را روی عکس رسید نگه دارید و گزینه «Save to Photos» یا «ذخیره تصویر» را بزنید.</p>
+                <button id="popupBtn" class="w-full py-2 rounded-xl font-bold text-gray-700 bg-gray-200 transition">بستن</button>
+            `;
+            setPopupFrame(type);
+            popup.classList.remove('hidden');
+            convertPopupDigits();
+            document.getElementById('receiptImg').src = receipt.url;
+            document.getElementById('saveBtn').onclick = () => saveReceipt(receipt);
+            document.getElementById('popupBtn').onclick = () => popup.classList.add('hidden');
+        }
+
+
+        async function finishWithReceipt(title, message, type, name, nat, mob, code) {
+            loadingText.innerText = 'در حال ساخت رسید...';
+            loading.style.display = 'flex';
+            try {
+                const receipt = await buildReceipt(name, nat, mob, code);
+                loading.style.display = 'none';
+                showReceiptPopup(title, message, type, receipt);
+            } catch (err) {
+                loading.style.display = 'none';
+                console.error('Receipt error:', err);
+                showPopup(
+                    '❌ خطا در ساخت رسید',
+                    'ثبت‌نام شما انجام شده است، اما ساخت رسید ناموفق بود. لطفاً دوباره فرم را با همان اطلاعات ثبت کنید تا رسید دریافت شود.<br><small style="color:#999">' + err.message + '</small>',
+                    'error', 'متوجه شدم', null
+                );
+            }
         }
 
 
@@ -398,21 +477,22 @@
 
                 if (result.status === 'success') {
                     playSound('audioSuccess');
-                    showPopup(
+                    await finishWithReceipt(
                         '🎉 موفقیت‌آمیز!',
-                        'ثبت‌نام شما با موفقیت انجام شد. لطفاً رسید خود را دریافت کنید.',
+                        'ثبت‌نام شما با موفقیت انجام شد. رسید خود را ذخیره کنید.',
                         'success',
-                        '📥 دانلود رسید',
-                        () => downloadReceipt(fullName, nationalId, mobile, result.trackingCode)
+                        fullName, nationalId, mobile, result.trackingCode
                     );
                 } else if (result.status === 'duplicate') {
                     playSound('audioDuplicate');
-                    showPopup(
+                    await finishWithReceipt(
                         '⚠️ قبلاً ثبت‌نام کرده‌اید',
-                        'کد ملی و شماره موبایل شما قبلاً ثبت شده است. برای دریافت مجدد رسید، روی دکمه زیر کلیک کنید.',
+                        'کد ملی و شماره موبایل شما قبلاً ثبت شده است. رسید شما در زیر آمده است.',
                         'error',
-                        '📥 دریافت مجدد رسید',
-                        () => downloadReceipt(result.storedName || fullName, result.storedNationalId || nationalId, result.storedMobile || mobile, result.trackingCode)
+                        result.storedName || fullName,
+                        result.storedNationalId || nationalId,
+                        result.storedMobile || mobile,
+                        result.trackingCode
                     );
                 } else if (result.status === 'duplicate_national') {
                     playSound('audioDuplicateNational');
